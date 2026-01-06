@@ -11,7 +11,7 @@ import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,7 +63,7 @@ public class LocalDirectionArgumentType implements ArgumentType<LocalDirection> 
     
     public static void init() {
         ArgumentTypeRegistry.registerArgumentType(
-            new ResourceLocation("gravity_changer:local_direction"),
+            Identifier.parse("gravity_changer:local_direction"),
             LocalDirectionArgumentType.class,
             SingletonArgumentInfo.contextFree(() -> LocalDirectionArgumentType.instance)
         );

@@ -1,6 +1,7 @@
 package gravity_changer.command;
 
 public enum LocalDirection {
+
     DOWN(-1, "down"),
     UP(-1, "up"),
     FORWARD(0, "forward"),

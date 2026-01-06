@@ -2,7 +2,7 @@ package gravity_changer.mixin;
 
 
 import gravity_changer.api.GravityChangerAPI;
-import gravity_changer.util.RotationUtil;
+import gravity_changer.rotation.RotationUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;

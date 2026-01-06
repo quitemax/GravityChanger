@@ -1,7 +1,7 @@
 package gravity_changer.util;
 
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.player.RemotePlayer;
+//import net.minecraft.client.player.LocalPlayer;
+//import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -11,11 +11,13 @@ import net.minecraft.world.entity.Entity;
 public class GCUtil {
     public static MutableComponent getLinkText(String link) {
         return Component.literal(link).withStyle(
-            style -> style.withClickEvent(new ClickEvent(
-                ClickEvent.Action.OPEN_URL, link
-            )).withUnderlined(true)
+            style -> style.withUnderlined(true)
         );
     }
+
+//    .withClickEvent(new ClickEvent(
+//                            ClickEvent.Action.OPEN_URL, link
+//                    ))
     
     public static MutableComponent getDirectionText(Direction gravityDirection) {
         return Component.translatable("direction." + gravityDirection.getName());
@@ -35,14 +37,14 @@ public class GCUtil {
     
     public static boolean isClientPlayer(Entity entity) {
         if (entity.level().isClientSide()) {
-            return entity instanceof LocalPlayer;
+            return entity.isLocalInstanceAuthoritative();
         }
         return false;
     }
-    
+
     public static boolean isRemotePlayer(Entity entity) {
         if (entity.level().isClientSide()) {
-            return entity instanceof RemotePlayer;
+            return !entity.isLocalInstanceAuthoritative();
         }
         return false;
     }

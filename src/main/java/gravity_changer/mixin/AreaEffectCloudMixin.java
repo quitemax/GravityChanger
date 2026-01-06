@@ -1,7 +1,7 @@
 package gravity_changer.mixin;
 
 import gravity_changer.api.GravityChangerAPI;
-import gravity_changer.util.RotationUtil;
+import gravity_changer.rotation.RotationUtil;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;

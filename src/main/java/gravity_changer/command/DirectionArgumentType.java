@@ -12,7 +12,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,7 +64,7 @@ public class DirectionArgumentType implements ArgumentType<Direction> {
     
     public static void init() {
         ArgumentTypeRegistry.registerArgumentType(
-            new ResourceLocation("gravity_changer:direction"),
+            Identifier.parse("gravity_changer:direction"),
             DirectionArgumentType.class,
             SingletonArgumentInfo.contextFree(() -> DirectionArgumentType.instance)
         );

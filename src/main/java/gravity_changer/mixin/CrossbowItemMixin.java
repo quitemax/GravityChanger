@@ -1,7 +1,7 @@
 package gravity_changer.mixin;
 
 import gravity_changer.api.GravityChangerAPI;
-import gravity_changer.util.RotationUtil;
+import gravity_changer.rotation.RotationUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CrossbowItem;

@@ -2,7 +2,7 @@ package gravity_changer.mixin;
 
 import gravity_changer.GravityChangerMod;
 import gravity_changer.api.GravityChangerAPI;
-import gravity_changer.util.RotationUtil;
+import gravity_changer.rotation.RotationUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -165,7 +165,7 @@ public abstract class EntityMixin {
         Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
         if (gravityDirection == Direction.DOWN) return;
         
-        cir.setReturnValue(BlockPos.containing(this.position.add(Vec3.atLowerCornerOf(gravityDirection.getNormal()).scale(0.5000001D))));
+        cir.setReturnValue(BlockPos.containing(this.position.add(Vec3.atLowerCornerOf(gravityDirection.getUnitVec3i()).scale(0.5000001D))));
     }
     
     @Inject(
@@ -495,10 +495,32 @@ public abstract class EntityMixin {
         BlockPos blockPos = BlockPos.containing(floorPos);
         BlockState blockState = this.level.getBlockState(blockPos);
         if (blockState.getRenderShape() != RenderShape.INVISIBLE) {
-            Vec3 particlePos = this.position().add(RotationUtil.vecPlayerToWorld((this.random.nextDouble() - 0.5D) * (double) this.dimensions.width, 0.1D, (this.random.nextDouble() - 0.5D) * (double) this.dimensions.width, gravityDirection));
+            Vec3 particlePos = this.position().add(
+                RotationUtil.vecPlayerToWorld(
+                        (this.random.nextDouble() - 0.5D) * (double) this.dimensions.width(),
+                        0.1D,
+                        (this.random.nextDouble() - 0.5D) * (double) this.dimensions.width(),
+                        gravityDirection
+                ));
             Vec3 playerVelocity = this.getDeltaMovement();
-            Vec3 particleVelocity = RotationUtil.vecPlayerToWorld(playerVelocity.x * -4.0D, 1.5D, playerVelocity.z * -4.0D, gravityDirection);
-            this.level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockState), particlePos.x, particlePos.y, particlePos.z, particleVelocity.x, particleVelocity.y, particleVelocity.z);
+            Vec3 particleVelocity = RotationUtil.vecPlayerToWorld(
+                playerVelocity.x * -4.0D,
+                1.5D,
+                playerVelocity.z * -4.0D,
+                gravityDirection
+            );
+            this.level.addParticle(
+                new BlockParticleOption(
+                    ParticleTypes.BLOCK,
+                    blockState
+                ),
+                particlePos.x,
+                particlePos.y,
+                particlePos.z,
+                particleVelocity.x,
+                particleVelocity.y,
+                particleVelocity.z
+            );
         }
     }
     
@@ -617,7 +639,7 @@ public abstract class EntityMixin {
     
         Direction gravityDirection = GravityChangerAPI.getGravityDirection(this_);
         if (GravityChangerMod.config.voidDamageAboveWorld &&
-            this.getY() > (double) (this.level.getMaxBuildHeight() + 256) &&
+            this.getY() > (double) (this.level.getMaxY() + 256) &&
             gravityDirection == Direction.UP
         ) {
             this.onBelowWorld();

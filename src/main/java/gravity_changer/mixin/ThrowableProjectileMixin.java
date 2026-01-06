@@ -3,7 +3,7 @@ package gravity_changer.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import gravity_changer.api.GravityChangerAPI;
-import gravity_changer.util.RotationUtil;
+import gravity_changer.rotation.RotationUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
