@@ -8,6 +8,7 @@ import org.objectweb.asm.Opcodes;
 import gravity_changer.GravityChangerMod;
 import gravity_changer.api.GravityChangerAPI;
 import gravity_changer.rotation.RotationUtil;
+import gravity_changer.util.GravityCollision;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -539,6 +540,107 @@ public abstract class EntityMixin {
             return result;
         }
         return RotationUtil.vecPlayerToWorld(result, gravityDirection);
+    }
+
+    // Entity.collide: step-up and axis ordering relative to the gravity direction
+    @Inject(
+        method = "Lnet/minecraft/world/entity/Entity;collide(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void gravitychanger$collide(Vec3 delta, CallbackInfoReturnable<Vec3> cir) {
+        Entity self = (Entity) (Object) this;
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection(self);
+        if (gravityDirection == Direction.DOWN) return;
+
+        cir.setReturnValue(GravityCollision.collide(self, delta, gravityDirection));
+    }
+
+    @WrapOperation(
+        method = "Lnet/minecraft/world/entity/Entity;collideBoundingBox(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/world/level/Level;Ljava/util/List;)Lnet/minecraft/world/phys/Vec3;",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;collideWithShapes(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Ljava/util/List;)Lnet/minecraft/world/phys/Vec3;"
+        )
+    )
+    private static Vec3 gravitychanger$collideWithShapes(
+        Vec3 movement, AABB box, List<VoxelShape> shapes, Operation<Vec3> original,
+        @Local(argsOnly = true) Entity entity
+    ) {
+        if (entity == null) return original.call(movement, box, shapes);
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection(entity);
+        if (gravityDirection == Direction.DOWN) return original.call(movement, box, shapes);
+        return GravityCollision.collideWithShapes(movement, box, shapes, gravityDirection);
+    }
+
+    // After a collision vanilla zeroes/bounces world x, z (horizontal) and world y (vertical).
+    // Do it in the gravity-local frame instead, otherwise walking along world Y gets damped
+    // every tick while standing on a wall.
+    @WrapOperation(
+        method = "move",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;restituteMovementAfterCollisions(Lnet/minecraft/world/level/block/state/BlockState;ZZLnet/minecraft/world/phys/Vec3;)V"
+        )
+    )
+    private void gravitychanger$restituteInLocalFrame(
+        Entity self, BlockState state, boolean xCollision, boolean zCollision, Vec3 movement, Operation<Void> original,
+        @Local(index = 2) Vec3 delta
+    ) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection(self);
+        if (gravityDirection == Direction.DOWN) {
+            original.call(self, state, xCollision, zCollision, movement);
+            return;
+        }
+
+        Vec3 localDelta = RotationUtil.vecWorldToPlayer(delta, gravityDirection);
+        Vec3 localMovement = RotationUtil.vecWorldToPlayer(movement, gravityDirection);
+        boolean localX = !Mth.equal(localDelta.x, localMovement.x);
+        boolean localZ = !Mth.equal(localDelta.z, localMovement.z);
+
+        self.setDeltaMovement(RotationUtil.vecWorldToPlayer(self.getDeltaMovement(), gravityDirection));
+        original.call(self, state, localX, localZ, localMovement);
+        self.setDeltaMovement(RotationUtil.vecPlayerToWorld(self.getDeltaMovement(), gravityDirection));
+    }
+
+    // block speed factor (soul sand, honey) slows the horizontal plane, which is not world x/z
+    @WrapOperation(
+        method = "move",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/phys/Vec3;multiply(DDD)Lnet/minecraft/world/phys/Vec3;"
+        )
+    )
+    private Vec3 gravitychanger$speedFactorInLocalFrame(
+        Vec3 velocity, double x, double y, double z, Operation<Vec3> original
+    ) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
+        if (gravityDirection == Direction.DOWN) {
+            return original.call(velocity, x, y, z);
+        }
+        Vec3 local = RotationUtil.vecWorldToPlayer(velocity, gravityDirection);
+        return RotationUtil.vecPlayerToWorld(original.call(local, x, y, z), gravityDirection);
+    }
+
+    // move() passes the world-space movement.y to checkFallDamage; use the gravity-local component
+    // so fallDistance accumulates for mobs on the server and for the local player on the client.
+    @WrapOperation(
+        method = "move",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V"
+        )
+    )
+    private void gravitychanger$moveCheckFallDamage(
+        Entity self, double y, boolean onGround, BlockState state, BlockPos pos, Operation<Void> original,
+        @Local(index = 4) Vec3 movement
+    ) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection(self);
+        if (gravityDirection == Direction.DOWN) {
+            original.call(self, y, onGround, state, pos);
+            return;
+        }
+        original.call(self, RotationUtil.vecWorldToPlayer(movement, gravityDirection).y, onGround, state, pos);
     }
 
     // Vanilla decides "landed" by (collided && delta.y < 0) in world space. Redo the vertical/horizontal
