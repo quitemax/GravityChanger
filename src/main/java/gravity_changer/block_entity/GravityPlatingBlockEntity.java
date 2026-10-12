@@ -105,11 +105,10 @@ public class GravityPlatingBlockEntity extends BlockEntity {
         public static PlatingBlockSideState getSideStateFromItemStack(ItemStack stack) {
             Validate.notNull(stack, "The stack must not be null");
 
-            Optional<? extends TypedEntityData<@NotNull BlockEntityType<?>>> blockEntityData = stack.getComponentsPatch().get(DataComponents.BLOCK_ENTITY_DATA);
+            TypedEntityData<@NotNull BlockEntityType<?>> tagData = stack.get(DataComponents.BLOCK_ENTITY_DATA);
 
             PlatingBlockSideState sideState = null;
-            if (blockEntityData != null && blockEntityData.isPresent()) {
-                TypedEntityData<@NotNull BlockEntityType<?>> tagData = blockEntityData.get();
+            if (tagData != null) {
                 CompoundTag tag = tagData.copyTagWithoutId();
                 sideState = PlatingBlockSideState.createFromTag(tag);
             } else {
@@ -205,16 +204,14 @@ public class GravityPlatingBlockEntity extends BlockEntity {
         platingBlockSideStateArray = new PlatingBlockSideState[6];
         for (Direction dir : Direction.values()) {
             String dirName = dir.getName();
-            if (readView.contains(dirName)) {
-                Optional<ValueInput> tag = readView.child(dirName);
-                if (tag.isEmpty()) {
-                    continue;
-                }
-                boolean isAttracting_ = tag.get().getBooleanOr("isAttracting", true);
-                int level_ = tag.get().getIntOr("level", 1);
-                level_ = Mth.clamp(level_, 1, MAX_LEVEL);
-                platingBlockSideStateArray[dir.ordinal()] = new PlatingBlockSideState(isAttracting_, level_);
+            Optional<ValueInput> tag = readView.child(dirName);
+            if (tag.isEmpty()) {
+                continue;
             }
+            boolean isAttracting_ = tag.get().getBooleanOr("isAttracting", true);
+            int level_ = tag.get().getIntOr("level", 1);
+            level_ = Mth.clamp(level_, 1, MAX_LEVEL);
+            platingBlockSideStateArray[dir.ordinal()] = new PlatingBlockSideState(isAttracting_, level_);
         }
     }
 

@@ -3,7 +3,7 @@ package gravity_changer;
 
 import gravity_changer.block_entity.GravityPlatingBlockEntity;
 import gravity_changer.block_item.GravityPlatingBlockItem;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -55,7 +55,7 @@ public class GravityChangerBlockItems {
     }
 
     public static void init() {
-        ItemGroupEvents.modifyEntriesEvent(GravityChangerMod.GRAVITY_ITEM_GROUP_KEY)
+        CreativeModeTabEvents.modifyOutputEvent(GravityChangerMod.GRAVITY_ITEM_GROUP_KEY)
                 .register(itemGroup -> {
                     itemGroup.accept(createPlatingBlockItemStack(new GravityPlatingBlockEntity.PlatingBlockSideState(true, 1)));
                     itemGroup.accept(createPlatingBlockItemStack(new GravityPlatingBlockEntity.PlatingBlockSideState(true, 2)));

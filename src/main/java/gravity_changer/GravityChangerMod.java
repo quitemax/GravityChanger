@@ -10,7 +10,7 @@ import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -32,7 +32,7 @@ public class GravityChangerMod implements ModInitializer {
                 BuiltInRegistries.CREATIVE_MODE_TAB.key(),
                 Identifier.fromNamespaceAndPath(MOD_ID, "gravity_item_group")
             );
-    public static CreativeModeTab GRAVITY_GROUP_TAB = FabricItemGroup.builder()
+    public static CreativeModeTab GRAVITY_GROUP_TAB = FabricCreativeModeTab.builder()
                 .icon(() -> new ItemStack(GravityChangerItems.GRAVITY_CHANGER_UP))
             .title(Component.translatable("itemGroup.gravity_changer.creative_mode_gravity_tab"))
             .build();

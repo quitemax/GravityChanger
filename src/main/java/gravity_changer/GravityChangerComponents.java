@@ -8,12 +8,12 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;
 import org.ladysnake.cca.api.v3.entity.EntityComponentInitializer;
 import org.ladysnake.cca.api.v3.entity.RespawnCopyStrategy;
-import org.ladysnake.cca.api.v3.world.WorldComponentFactoryRegistry;
-import org.ladysnake.cca.api.v3.world.WorldComponentInitializer;
+import org.ladysnake.cca.api.v8.level.LevelComponentFactoryRegistry;
+import org.ladysnake.cca.api.v8.level.LevelComponentInitializer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 
-public class GravityChangerComponents implements EntityComponentInitializer, WorldComponentInitializer {
+public class GravityChangerComponents implements EntityComponentInitializer, LevelComponentInitializer {
     
     public static final Identifier DATA_COMPONENT_ID =
             Identifier.fromNamespaceAndPath("gravity_changer", "gravity_data");
@@ -45,7 +45,7 @@ public class GravityChangerComponents implements EntityComponentInitializer, Wor
     }
     
     @Override
-    public void registerWorldComponentFactories(WorldComponentFactoryRegistry registry) {
+    public void registerLevelComponentFactories(LevelComponentFactoryRegistry registry) {
         registry.register(
             DIMENSION_COMP_KEY,
             DimensionGravityDataComponent::new

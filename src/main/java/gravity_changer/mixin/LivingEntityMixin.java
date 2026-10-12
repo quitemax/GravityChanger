@@ -7,8 +7,11 @@ import gravity_changer.api.GravityChangerAPI;
 import gravity_changer.rotation.RotationUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -26,14 +29,12 @@ import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
-    @Shadow
-    public abstract void readAdditionalSaveData(CompoundTag nbt);
-    
     @Shadow
     public abstract EntityDimensions getDimensions(Pose pose);
     
@@ -45,91 +46,15 @@ public abstract class LivingEntityMixin extends Entity {
         super(type, world);
     }
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;travel(Lnet/minecraft/world/phys/Vec3;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getY()D",
-            ordinal = 0
-        )
-    )
-    private double redirect_travel_getY_0(LivingEntity livingEntity) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(livingEntity);
-        if (gravityDirection == Direction.DOWN) {
-            return livingEntity.getY();
-        }
-        
-        return RotationUtil.vecWorldToPlayer(livingEntity.position(), gravityDirection).y;
-    }
+
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;travel(Lnet/minecraft/world/phys/Vec3;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getY()D",
-            ordinal = 1
-        )
-    )
-    private double redirect_travel_getY_1(LivingEntity livingEntity) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(livingEntity);
-        if (gravityDirection == Direction.DOWN) {
-            return livingEntity.getY();
-        }
-        
-        return RotationUtil.vecWorldToPlayer(livingEntity.position(), gravityDirection).y;
-    }
+
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;travel(Lnet/minecraft/world/phys/Vec3;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getY()D",
-            ordinal = 2
-        )
-    )
-    private double redirect_travel_getY_2(LivingEntity livingEntity) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(livingEntity);
-        if (gravityDirection == Direction.DOWN) {
-            return livingEntity.getY();
-        }
-        
-        return RotationUtil.vecWorldToPlayer(livingEntity.position(), gravityDirection).y;
-    }
+
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;travel(Lnet/minecraft/world/phys/Vec3;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getY()D",
-            ordinal = 3
-        )
-    )
-    private double redirect_travel_getY_3(LivingEntity livingEntity) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(livingEntity);
-        if (gravityDirection == Direction.DOWN) {
-            return livingEntity.getY();
-        }
-        
-        return RotationUtil.vecWorldToPlayer(livingEntity.position(), gravityDirection).y;
-    }
+
     
-    @ModifyVariable(
-        method = "Lnet/minecraft/world/entity/LivingEntity;travel(Lnet/minecraft/world/phys/Vec3;)V",
-        at = @At(
-            value = "INVOKE_ASSIGN",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getLookAngle()Lnet/minecraft/world/phys/Vec3;",
-            ordinal = 0
-        ),
-        ordinal = 2
-    )
-    private Vec3 modify_travel_Vec3d_2(Vec3 vec3d) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
-        if (gravityDirection == Direction.DOWN) {
-            return vec3d;
-        }
-        
-        return RotationUtil.vecWorldToPlayer(vec3d, gravityDirection);
-    }
+
     
     @ModifyArg(
         method = "playBlockFallSound",
@@ -149,7 +74,7 @@ public abstract class LivingEntityMixin extends Entity {
     }
     
     @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;hasLineOfSight(Lnet/minecraft/world/entity/Entity;)Z",
+        method = "Lnet/minecraft/world/entity/LivingEntity;hasLineOfSight(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/ClipContext$Block;Lnet/minecraft/world/level/ClipContext$Fluid;D)Z",
         at = @At(
             value = "NEW",
             target = "(DDD)Lnet/minecraft/world/phys/Vec3;",
@@ -166,7 +91,7 @@ public abstract class LivingEntityMixin extends Entity {
     }
     
     @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;hasLineOfSight(Lnet/minecraft/world/entity/Entity;)Z",
+        method = "Lnet/minecraft/world/entity/LivingEntity;hasLineOfSight(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/ClipContext$Block;Lnet/minecraft/world/level/ClipContext$Fluid;D)Z",
         at = @At(
             value = "NEW",
             target = "(DDD)Lnet/minecraft/world/phys/Vec3;",
@@ -258,162 +183,22 @@ public abstract class LivingEntityMixin extends Entity {
         return RotationUtil.vecWorldToPlayer(livingEntity.getX() - livingEntity.xo, livingEntity.getY() - livingEntity.yo, original.call(livingEntity) - livingEntity.zo, gravityDirection).z + livingEntity.zo;
     }
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/Entity;getX()D",
-            ordinal = 0
-        )
-    )
-    private double redirect_damage_getX_0(Entity attacker) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
-        if (gravityDirection == Direction.DOWN) {
-            if (GravityChangerAPI.getGravityDirection(attacker) == Direction.DOWN) {
-                return attacker.getX();
-            }
-            else {
-                return attacker.getEyePosition().x;
-            }
-        }
-        
-        return RotationUtil.vecWorldToPlayer(attacker.getEyePosition(), gravityDirection).x;
-    }
+
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/Entity;getZ()D",
-            ordinal = 0
-        )
-    )
-    private double redirect_damage_getZ_0(Entity attacker) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
-        if (gravityDirection == Direction.DOWN) {
-            if (GravityChangerAPI.getGravityDirection(attacker) == Direction.DOWN) {
-                return attacker.getZ();
-            }
-            else {
-                return attacker.getEyePosition().z;
-            }
-        }
-        
-        return RotationUtil.vecWorldToPlayer(attacker.getEyePosition(), gravityDirection).z;
-    }
+
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getX()D",
-            ordinal = 0
-        )
-    )
-    private double redirect_damage_getX_0(LivingEntity target) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(target);
-        if (gravityDirection == Direction.DOWN) {
-            return target.getX();
-        }
-        
-        return RotationUtil.vecWorldToPlayer(target.position(), gravityDirection).x;
-    }
+
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getZ()D",
-            ordinal = 0
-        )
-    )
-    private double redirect_damage_getZ_0(LivingEntity target) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(target);
-        if (gravityDirection == Direction.DOWN) {
-            return target.getZ();
-        }
-        
-        return RotationUtil.vecWorldToPlayer(target.position(), gravityDirection).z;
-    }
+
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;blockedByShield(Lnet/minecraft/world/entity/LivingEntity;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getX()D",
-            ordinal = 0
-        )
-    )
-    private double redirect_knockback_getX_0(LivingEntity target) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(target);
-        if (gravityDirection == Direction.DOWN) {
-            return target.getX();
-        }
-        
-        return RotationUtil.vecWorldToPlayer(target.position(), gravityDirection).x;
-    }
+
     
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;blockedByShield(Lnet/minecraft/world/entity/LivingEntity;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getZ()D",
-            ordinal = 0
-        )
-    )
-    private double redirect_knockback_getZ_0(LivingEntity target) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(target);
-        if (gravityDirection == Direction.DOWN) {
-            return target.getZ();
-        }
-        
-        return RotationUtil.vecWorldToPlayer(target.position(), gravityDirection).z;
-    }
+
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;blockedByShield(Lnet/minecraft/world/entity/LivingEntity;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getX()D",
-            ordinal = 1
-        )
-    )
-    private double redirect_knockback_getX_1(LivingEntity attacker, LivingEntity target) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(target);
-        if (gravityDirection == Direction.DOWN) {
-            if (GravityChangerAPI.getGravityDirection(attacker) == Direction.DOWN) {
-                return attacker.getX();
-            }
-            else {
-                return attacker.getEyePosition().x;
-            }
-        }
-        
-        return RotationUtil.vecWorldToPlayer(attacker.getEyePosition(), gravityDirection).x;
-    }
+
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/LivingEntity;blockedByShield(Lnet/minecraft/world/entity/LivingEntity;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getZ()D",
-            ordinal = 1
-        )
-    )
-    private double redirect_knockback_getZ_1(LivingEntity attacker, LivingEntity target) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(target);
-        if (gravityDirection == Direction.DOWN) {
-            if (GravityChangerAPI.getGravityDirection(attacker) == Direction.DOWN) {
-                return attacker.getZ();
-            }
-            else {
-                return attacker.getEyePosition().z;
-            }
-        }
-        
-        return RotationUtil.vecWorldToPlayer(attacker.getEyePosition(), gravityDirection).z;
-    }
+
     
     @Redirect(
         method = "Lnet/minecraft/world/entity/LivingEntity;baseTick()V",
@@ -503,23 +288,7 @@ public abstract class LivingEntityMixin extends Entity {
         args.set(3, vec3d.z);
     }
     
-    @ModifyVariable(
-        method = "Lnet/minecraft/world/entity/LivingEntity;isDamageSourceBlocked(Lnet/minecraft/world/damagesource/DamageSource;)Z",
-        at = @At(
-            value = "INVOKE_ASSIGN",
-            target = "Lnet/minecraft/world/entity/LivingEntity;calculateViewVector(FF)Lnet/minecraft/world/phys/Vec3;",
-            ordinal = 0
-        ),
-        ordinal = 1
-    )
-    private Vec3 modify_blockedByShield_Vec3d_1(Vec3 vec3d) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
-        if (gravityDirection == Direction.DOWN) {
-            return vec3d;
-        }
-        
-        return RotationUtil.vecWorldToPlayer(vec3d, gravityDirection);
-    }
+
     
     // TODO shield knockback
 //    @ModifyArg(
@@ -558,13 +327,247 @@ public abstract class LivingEntityMixin extends Entity {
 //        return RotationUtil.vecWorldToPlayer(vec3d, gravityDirection);
 //    }
     
-    @ModifyConstant(method = "Lnet/minecraft/world/entity/LivingEntity;travel(Lnet/minecraft/world/phys/Vec3;)V", constant = @Constant(doubleValue = 0.08))
-    private double multiplyGravity(double constant) {
-        return constant * GravityChangerAPI.getGravityStrength(this);
-    }
+
     
-    @ModifyVariable(method = "Lnet/minecraft/world/entity/LivingEntity;calculateFallDamage(FF)I", at = @At("HEAD"), ordinal = 0, argsOnly = true)
-    private float diminishFallDamage(float value) {
-        return value * (float) Math.sqrt(GravityChangerAPI.getGravityStrength(this));
+    @ModifyVariable(method = "Lnet/minecraft/world/entity/LivingEntity;calculateFallDamage(DF)I", at = @At("HEAD"), ordinal = 0, argsOnly = true)
+    private double diminishFallDamage(double value) {
+        return value * Math.sqrt(GravityChangerAPI.getGravityStrength(this));
+    }
+
+    // ---- vertical position used by fluid movement (travelInAir / travelInFluid / jumpOutOfFluid)
+    @Redirect(method = "travelInAir", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getY()D", ordinal = 0))
+    private double redirect_travelInAir_getY(LivingEntity livingEntity) {
+        return gravitychanger$localY(livingEntity);
+    }
+
+    @Redirect(method = "travelInFluid", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getY()D", ordinal = 0))
+    private double redirect_travelInFluid_getY(LivingEntity livingEntity) {
+        return gravitychanger$localY(livingEntity);
+    }
+
+    @Redirect(method = "jumpOutOfFluid", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getY()D", ordinal = 0))
+    private double redirect_jumpOutOfFluid_getY(LivingEntity livingEntity) {
+        return gravitychanger$localY(livingEntity);
+    }
+
+    private static double gravitychanger$localY(LivingEntity livingEntity) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection(livingEntity);
+        if (gravityDirection == Direction.DOWN) {
+            return livingEntity.getY();
+        }
+        return RotationUtil.vecWorldToPlayer(livingEntity.position(), gravityDirection).y;
+    }
+
+    // ---- Velocity (deltaMovement) is stored in world space, but vanilla walking/jumping/drag/gravity
+    // code assumes "y is up". Convert to the local frame around those spots.
+    @Shadow
+    protected abstract float getJumpPower();
+
+    @Inject(method = "jumpFromGround", at = @At("HEAD"), cancellable = true)
+    private void inject_jumpFromGround(CallbackInfo ci) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
+        if (gravityDirection == Direction.DOWN) return;
+        ci.cancel();
+
+        float jumpPower = this.getJumpPower();
+        if (jumpPower <= 1.0E-5F) return;
+
+        Vec3 local = RotationUtil.vecWorldToPlayer(this.getDeltaMovement(), gravityDirection);
+        Vec3 jumped = new Vec3(local.x, Math.max(jumpPower, local.y), local.z);
+        if (this.isSprinting()) {
+            float yaw = this.getYRot() * 0.017453292F;
+            jumped = jumped.add(-Mth.sin(yaw) * 0.2, 0.0, Mth.cos(yaw) * 0.2);
+        }
+        this.setDeltaMovement(RotationUtil.vecPlayerToWorld(jumped, gravityDirection));
+        this.needsSync = true;
+    }
+
+    // travelInAir: work on the post-move velocity in the local frame (gravity and drag are applied there),
+    // then write it back in world space.
+    @WrapOperation(
+        method = "travelInAir",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;handleRelativeFrictionAndCalculateMovement(Lnet/minecraft/world/phys/Vec3;F)Lnet/minecraft/world/phys/Vec3;"
+        )
+    )
+    private Vec3 wrapOperation_travelInAir_handleFriction(
+        LivingEntity self, Vec3 input, float friction, Operation<Vec3> original
+    ) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection(self);
+        Vec3 result = original.call(self, input, friction);
+        if (gravityDirection == Direction.DOWN) return result;
+        return RotationUtil.vecWorldToPlayer(result, gravityDirection);
+    }
+
+    @WrapOperation(
+        method = "travelInAir",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;setDeltaMovement(DDD)V")
+    )
+    private void wrapOperation_travelInAir_setDeltaMovement(
+        LivingEntity self, double x, double y, double z, Operation<Void> original
+    ) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection(self);
+        if (gravityDirection == Direction.DOWN) {
+            original.call(self, x, y, z);
+            return;
+        }
+        Vec3 world = RotationUtil.vecPlayerToWorld(x, y, z, gravityDirection);
+        original.call(self, world.x, world.y, world.z);
+    }
+
+    @WrapOperation(
+        method = "handleRelativeFrictionAndCalculateMovement",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;handleOnClimbable(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;"
+        )
+    )
+    private Vec3 wrapOperation_handleOnClimbable(LivingEntity self, Vec3 velocity, Operation<Vec3> original) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection(self);
+        if (gravityDirection == Direction.DOWN) {
+            return original.call(self, velocity);
+        }
+        Vec3 local = original.call(self, RotationUtil.vecWorldToPlayer(velocity, gravityDirection));
+        return RotationUtil.vecPlayerToWorld(local, gravityDirection);
+    }
+
+    // ---- elytra: the look vector must be in the entity's local frame
+    @WrapOperation(
+        method = "updateFallFlyingMovement",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getLookAngle()Lnet/minecraft/world/phys/Vec3;")
+    )
+    private Vec3 wrapOperation_updateFallFlyingMovement_getLookAngle(LivingEntity livingEntity, Operation<Vec3> original) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection(livingEntity);
+        if (gravityDirection == Direction.DOWN) {
+            return original.call(livingEntity);
+        }
+        return RotationUtil.vecWorldToPlayer(original.call(livingEntity), gravityDirection);
+    }
+
+    // ---- knockback direction (damage and shield blocking). Computed in this entity's local frame.
+    @WrapOperation(
+        method = "dealDefaultKnockback",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDDLnet/minecraft/world/damagesource/DamageSource;F)V"
+        )
+    )
+    private void wrapOperation_dealDefaultKnockback_knockback(
+        LivingEntity target, double power, double x, double z, DamageSource source, float f, Operation<Void> original
+    ) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection(target);
+        Vec3 sourcePos = source.getSourcePosition();
+        Entity attacker = source.getDirectEntity();
+        if (sourcePos == null || (gravityDirection == Direction.DOWN
+            && (attacker == null || GravityChangerAPI.getGravityDirection(attacker) == Direction.DOWN))) {
+            original.call(target, power, x, z, source, f);
+            return;
+        }
+        if (attacker != null && GravityChangerAPI.getGravityDirection(attacker) != Direction.DOWN) {
+            sourcePos = attacker.getEyePosition();
+        }
+        Vec3 rel = RotationUtil.vecWorldToPlayer(sourcePos.subtract(target.position()), gravityDirection);
+        original.call(target, power, rel.x, rel.z, source, f);
+    }
+
+    @WrapOperation(
+        method = "blockedByItem",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDDLnet/minecraft/world/damagesource/DamageSource;F)V"
+        )
+    )
+    private void wrapOperation_blockedByItem_knockback(
+        LivingEntity target, double power, double x, double z, DamageSource source, float f, Operation<Void> original,
+        LivingEntity attacker
+    ) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection(target);
+        if (gravityDirection == Direction.DOWN && GravityChangerAPI.getGravityDirection(attacker) == Direction.DOWN) {
+            original.call(target, power, x, z, source, f);
+            return;
+        }
+        Vec3 attackerPos = GravityChangerAPI.getGravityDirection(attacker) == Direction.DOWN ? attacker.position() : attacker.getEyePosition();
+        Vec3 rel = RotationUtil.vecWorldToPlayer(attackerPos.subtract(target.position()), gravityDirection);
+        original.call(target, power, rel.x, rel.z, source, f);
+    }
+
+    // ---- attacker yaw used for the knockback direction, converted into the target's local frame
+    @WrapOperation(
+        method = "causeExtraKnockback",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getYRot()F", ordinal = 0)
+    )
+    private float wrapOperation_causeExtraKnockback_getYaw_0(LivingEntity attacker, Operation<Float> original, Entity target) {
+        return gravitychanger$attackYaw(attacker, target, original);
+    }
+
+    @WrapOperation(
+        method = "causeExtraKnockback",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getYRot()F", ordinal = 1)
+    )
+    private float wrapOperation_causeExtraKnockback_getYaw_1(LivingEntity attacker, Operation<Float> original, Entity target) {
+        return gravitychanger$attackYaw(attacker, target, original);
+    }
+
+    private static float gravitychanger$attackYaw(LivingEntity attacker, Entity target, Operation<Float> original) {
+        Direction targetDir = GravityChangerAPI.getGravityDirection(target);
+        Direction attackerDir = GravityChangerAPI.getGravityDirection(attacker);
+        if (targetDir == attackerDir) {
+            return original.call(attacker);
+        }
+        return RotationUtil.rotWorldToPlayer(
+            RotationUtil.rotPlayerToWorld(original.call(attacker), attacker.getXRot(), attackerDir), targetDir
+        ).x;
+    }
+
+    // ---- dropped items (player drop / throw)
+    @Redirect(
+        method = "createItemStackToDrop",
+        at = @At(
+            value = "NEW",
+            target = "(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/entity/item/ItemEntity;",
+            ordinal = 0
+        )
+    )
+    private ItemEntity redirect_dropItem_new_0(
+        Level world, double x, double y, double z, ItemStack stack
+    ) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
+        if (gravityDirection == Direction.DOWN) {
+            return new ItemEntity(world, x, y, z, stack);
+        }
+        
+        Vec3 vec3d = this.getEyePosition()
+            .subtract(RotationUtil.vecPlayerToWorld(0.0D, 0.3D, 0.0D, gravityDirection));
+        
+        ItemEntity itemEntity = new ItemEntity(world, vec3d.x, vec3d.y, vec3d.z, stack);
+        
+//        // change the gravity of the thrown item
+//        GravityChangerAPI.setBaseGravityDirection(
+//            itemEntity, gravityDirection
+//        );
+        // the item entity calculates position both on client and server separately
+        // if gravity is not down, the client and server will desync (the reason is not yet known)
+        // don't let item change gravity for now
+        
+        return itemEntity;
+    }
+
+    @WrapOperation(
+        method = "createItemStackToDrop",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/item/ItemEntity;setDeltaMovement(DDD)V"
+        )
+    )
+    private void wrapOperation_dropItem_setVelocity(ItemEntity itemEntity, double x, double y, double z, Operation<Void> original) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
+        if (gravityDirection == Direction.DOWN) {
+            original.call(itemEntity, x, y, z);
+            return;
+        }
+        
+        Vec3 world = RotationUtil.vecPlayerToWorld(x, y, z, gravityDirection);
+        GravityChangerAPI.setWorldVelocity(itemEntity, world);
     }
 }

@@ -1,11 +1,15 @@
 {
-	"required": true,
-	"package": "gravity_changer.mixin.client",
-	"compatibilityLevel": "JAVA_21",
-	"client": [
-		"ExampleClientMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	}
+  "required": true,
+  "minVersion": "0.8",
+  "package": "gravity_changer.mixin.client",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "CameraMixin",
+    "ItemPickupParticleMixin",
+    "LevelExtractorMixin",
+    "LocalPlayerEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

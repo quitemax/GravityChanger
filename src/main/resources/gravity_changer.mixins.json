@@ -1,14 +1,50 @@
 {
-	"required": true,
-	"package": "gravity_changer.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"ExampleMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"overwrites": {
-		"requireAnnotations": true
-	}
+  "required": true,
+  "minVersion": "0.8",
+  "package": "gravity_changer.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "AbstractArrowMixin",
+    "AbstractSkeletonMixin",
+    "BegGoalMixin",
+    "DirectionMixin",
+    "DrownedMixin",
+    "Enderman_EndermanFreezeWhenLookAtMixin",
+    "EntityAccessor",
+    "EntityCollisionContextMixin",
+    "EntityFluidInteractionMixin",
+    "EntityMixin",
+    "ExperienceBottleItemMixin",
+    "ExplosionMixin",
+    "FireworkRocketMixin",
+    "FishinghookMixin",
+    "FluidCurrentAccumulatorMixin",
+    "IllusionerMixin",
+    "ItemMixin",
+    "LivingEntityMixin",
+    "LookAtPlayerGoalMixin",
+    "MobMixin",
+    "PistonMovingBlockEntityMixin",
+    "PlayerListMixin",
+    "PlayerMixin",
+    "PointedDripstoneBlockMixin",
+    "ProjectileMixin",
+    "ServerGamePacketListenerImplMixin",
+    "ShulkerBoxBlockEntityMixin",
+    "ShulkerMixin",
+    "SnowGolemMixin",
+    "ThrowablePotionItemMixin",
+    "ThrowableProjectileMixin",
+    "UseOnContextMixin",
+    "WitchMixin",
+    "WitherBossMixin",
+    "debug.MixinEntity_Debug",
+    "item.BehaviorUtilsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
 }

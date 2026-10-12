@@ -28,7 +28,7 @@ public abstract class EntityCollisionContextMixin {
     private double entityBottom;
     
     @Redirect(
-        method = "<init>(Lnet/minecraft/world/entity/Entity;)V",
+        method = "<init>(Lnet/minecraft/world/entity/Entity;ZZ)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/entity/Entity;getY()D",

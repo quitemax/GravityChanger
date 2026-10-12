@@ -1,15 +1,11 @@
 package gravity_changer;
 
-import gravity_changer.block.GravityPlatingBlock;
-import gravity_changer.util.GCUtil;
 import net.fabricmc.api.ClientModInitializer;
 
 //import gravity_changer.plating.GravityPlatingBlock;
 //import gravity_changer.util.GCUtil;
 //import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -30,8 +26,8 @@ public class GravityChangerModClient implements ClientModInitializer {
                 }
                 if (displayPreviewWarning) {
                     displayPreviewWarning = false;
-                    client.player.displayClientMessage(
-                            Component.translatable("gravity_changer.preview"), true
+                    client.player.sendOverlayMessage(
+                            Component.translatable("gravity_changer.preview")
                     );
                 }
             }

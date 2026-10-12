@@ -81,7 +81,7 @@ public class GravityChangerMobEffects {
                         int amplifier = effectInstance.getAmplifier();
 
                         component.applyGravityEffectDirection(
-                            ((GravityDirectionMobEffect)dirEffect).gravityDirection,
+                            ((GravityDirectionMobEffect) dirEffect.value()).gravityDirection,
                             null,
                             amplifier + 1.0
                         );

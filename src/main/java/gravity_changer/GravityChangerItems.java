@@ -4,7 +4,7 @@ import gravity_changer.component.GravityComponent;
 import gravity_changer.item.GravityAOEChangerItem;
 import gravity_changer.item.GravityAnchorItem;
 import gravity_changer.item.GravityChangerItem;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -51,7 +51,7 @@ public class GravityChangerItems {
     }
 
     public static void registerGravityItemsWithGravityItemGroup() {
-        ItemGroupEvents.modifyEntriesEvent(GravityChangerMod.GRAVITY_ITEM_GROUP_KEY)
+        CreativeModeTabEvents.modifyOutputEvent(GravityChangerMod.GRAVITY_ITEM_GROUP_KEY)
             .register(itemGroup -> {
                 itemGroup.accept(GRAVITY_CHANGER_DOWN);
                 itemGroup.accept(GRAVITY_CHANGER_UP);
@@ -76,7 +76,10 @@ public class GravityChangerItems {
     public static void registerGravityUpdateEventForAnchorItemInHand() {
         GravityComponent.GRAVITY_UPDATE_EVENT.register((entity, component) -> {
             ItemStack handSlot = entity.getWeaponItem();
-            assert handSlot != null;
+            if (handSlot == null) {
+                // non-living entities have no weapon item
+                return;
+            }
             Item item = handSlot.getItem();
             if (item instanceof GravityAnchorItem anchorItem) {
                 component.applyGravityEffectDirection(

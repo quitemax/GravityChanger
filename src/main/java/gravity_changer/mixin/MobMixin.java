@@ -15,21 +15,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(Mob.class)
 public abstract class MobMixin {
-    @WrapOperation(
-        method = "doHurtTarget",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/Mob;getYRot()F"
-        )
-    )
-    private float wrapOperation_tryAttack_getYaw_0(Mob attacker, Operation<Float> original, Entity target) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(target);
-        if (gravityDirection == Direction.DOWN) {
-            return original.call(attacker);
-        }
-        
-        return RotationUtil.rotWorldToPlayer(original.call(attacker), attacker.getXRot(), gravityDirection).x;
-    }
+
     
     @Redirect(
         method = "Lnet/minecraft/world/entity/Mob;lookAt(Lnet/minecraft/world/entity/Entity;FF)V",

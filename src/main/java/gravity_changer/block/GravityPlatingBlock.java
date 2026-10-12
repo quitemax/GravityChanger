@@ -1,7 +1,6 @@
 package gravity_changer.block;
 
 //import com.google.common.collect.ImmutableMap;
-import com.mojang.serialization.MapCodec;
 ////import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 //import gravity_changer.GravityChangerBlocks;
 import gravity_changer.block_entity.GravityPlatingBlockEntity;
@@ -46,8 +45,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public class GravityPlatingBlock extends BaseEntityBlock {
-    public static final MapCodec<GravityPlatingBlock> CODEC = simpleCodec(GravityPlatingBlock::new);
-
     // in a corner, multiple faces of plates can occupy the same block
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty EAST = BlockStateProperties.EAST;
@@ -85,10 +82,6 @@ public class GravityPlatingBlock extends BaseEntityBlock {
         stateManager.add(UP, DOWN, NORTH, SOUTH, EAST, WEST);
     }
 
-    @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
-    }
 
 
     @Nullable

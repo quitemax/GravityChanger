@@ -134,21 +134,7 @@ public abstract class ServerGamePacketListenerImplMixin {
 //        return RotationUtil.vecWorldToPlayer(vec3d, gravityDirection);
 //    }
     
-    @ModifyArg(
-        method = "handleMovePlayer",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerPlayer;move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V"
-        )
-    )
-    private Vec3 modify_onPlayerMove_move_1(Vec3 vec3d) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(this.player);
-        if (gravityDirection == Direction.DOWN) {
-            return vec3d;
-        }
-        
-        return RotationUtil.vecWorldToPlayer(vec3d, gravityDirection);
-    }
+
     
     //@Redirect(
     //        method = "onVehicleMove",
@@ -184,22 +170,7 @@ public abstract class ServerGamePacketListenerImplMixin {
     //    return RotationUtil.vecWorldToPlayer(instance.getPos(), gravityDirection).y;
     //}
     
-    @ModifyArg(
-        method = "handleMoveVehicle",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/Entity;move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V"
-        ),
-        index = 1
-    )
-    private Vec3 modify_onVehicleMove_move_0(Vec3 vec3d) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(this.player);
-        if (gravityDirection == Direction.DOWN) {
-            return vec3d;
-        }
-        
-        return RotationUtil.vecWorldToPlayer(vec3d, gravityDirection);
-    }
+
     
     //@ModifyVariable(
     //        method = "onVehicleMove",

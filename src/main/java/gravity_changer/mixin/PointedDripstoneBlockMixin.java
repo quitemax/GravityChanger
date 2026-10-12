@@ -25,7 +25,7 @@ public abstract class PointedDripstoneBlockMixin {
             ordinal = 0
         )
     )
-    private Comparable<Direction> wrapOperation_onLandedUpon_get_0(BlockState blockState, Property<Direction> property, Operation<Comparable<Direction>> original, Level world, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
+    private Comparable<Direction> wrapOperation_onLandedUpon_get_0(BlockState blockState, Property<Direction> property, Operation<Comparable<Direction>> original, Level world, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
         Direction gravityDirection = GravityChangerAPI.getGravityDirection(entity);
         if (gravityDirection == Direction.DOWN) {
             return original.call(blockState, property);

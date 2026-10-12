@@ -191,7 +191,7 @@ public class GravityCommand {
     }
 
     private static int executeRandomizeBaseDirection(CommandSourceStack source, Collection<? extends Entity> entities) {
-        RandomSource random = source.getLevel().random;
+        RandomSource random = source.getLevel().getRandom();
         for (Entity entity : entities) {
             Direction gravityDirection = Direction.getRandom(random);
             GravityChangerAPI.setBaseGravityDirection(entity, gravityDirection);

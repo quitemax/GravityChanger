@@ -1,6 +1,6 @@
 package gravity_changer;
 
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -120,7 +120,7 @@ public class GravityChangerPotions {
     }
 
     public static void init() {
-        ItemGroupEvents.modifyEntriesEvent(GravityChangerMod.GRAVITY_ITEM_GROUP_KEY)
+        CreativeModeTabEvents.modifyOutputEvent(GravityChangerMod.GRAVITY_ITEM_GROUP_KEY)
             .register(itemGroup -> {
                 Item[] potionItems = new Item[]{
                     Items.POTION,

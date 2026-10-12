@@ -41,7 +41,7 @@ public abstract class PlayerMixin extends LivingEntity {
     protected abstract boolean isStayingOnGroundSurface();
     
     @Shadow
-    protected abstract boolean isAboveGround();
+    protected abstract boolean isAboveGround(float maxDownStep);
     
     protected PlayerMixin(EntityType<? extends LivingEntity> entityType, Level world) {
         super(entityType, world);
@@ -95,55 +95,9 @@ public abstract class PlayerMixin extends LivingEntity {
     //    return new BlockPos(this.getPos().add(RotationUtil.vecPlayerToWorld(0.0D, 1.0D - 0.1D, 0.0D, gravityDirection)));
     //}
     
-    @Redirect(
-        method = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;",
-        at = @At(
-            value = "NEW",
-            target = "(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/entity/item/ItemEntity;",
-            ordinal = 0
-        )
-    )
-    private ItemEntity redirect_dropItem_new_0(
-        Level world, double x, double y, double z, ItemStack stack
-    ) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
-        if (gravityDirection == Direction.DOWN) {
-            return new ItemEntity(world, x, y, z, stack);
-        }
-        
-        Vec3 vec3d = this.getEyePosition()
-            .subtract(RotationUtil.vecPlayerToWorld(0.0D, 0.3D, 0.0D, gravityDirection));
-        
-        ItemEntity itemEntity = new ItemEntity(world, vec3d.x, vec3d.y, vec3d.z, stack);
-        
-//        // change the gravity of the thrown item
-//        GravityChangerAPI.setBaseGravityDirection(
-//            itemEntity, gravityDirection
-//        );
-        // the item entity calculates position both on client and server separately
-        // if gravity is not down, the client and server will desync (the reason is not yet known)
-        // don't let item change gravity for now
-        
-        return itemEntity;
-    }
+
     
-    @WrapOperation(
-        method = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/item/ItemEntity;setDeltaMovement(DDD)V"
-        )
-    )
-    private void wrapOperation_dropItem_setVelocity(ItemEntity itemEntity, double x, double y, double z, Operation<Void> original) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
-        if (gravityDirection == Direction.DOWN) {
-            original.call(itemEntity, x, y, z);
-            return;
-        }
-        
-        Vec3 world = RotationUtil.vecPlayerToWorld(x, y, z, gravityDirection);
-        GravityChangerAPI.setWorldVelocity(itemEntity, world);
-    }
+
     
     @Inject(
         method = "Lnet/minecraft/world/entity/player/Player;maybeBackOffFromEdge(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/entity/MoverType;)Lnet/minecraft/world/phys/Vec3;",
@@ -157,7 +111,7 @@ public abstract class PlayerMixin extends LivingEntity {
         
         Vec3 playerMovement = RotationUtil.vecWorldToPlayer(movement, gravityDirection);
         
-        if (!this.abilities.flying && (type == MoverType.SELF || type == MoverType.PLAYER) && this.isStayingOnGroundSurface() && this.isAboveGround()) {
+        if (!this.abilities.flying && (type == MoverType.SELF || type == MoverType.PLAYER) && this.isStayingOnGroundSurface() && this.isAboveGround(this.maxUpStep())) {
             double d = playerMovement.x;
             double e = playerMovement.z;
             double var7 = 0.05D;
@@ -215,109 +169,17 @@ public abstract class PlayerMixin extends LivingEntity {
         }
     }
     
-    @WrapOperation(
-        method = "isAboveGround",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/phys/AABB;move(DDD)Lnet/minecraft/world/phys/AABB;"
-        )
-    )
-    private AABB wrapOperation_method_30263_offset_0(AABB box, double x, double y, double z, Operation<AABB> original) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
-        if (gravityDirection == Direction.DOWN) {
-            return original.call(box, x, y, z);
-        }
-        
-        Vec3 world = RotationUtil.vecPlayerToWorld(x, y, z, gravityDirection);
-        return original.call(box, world.x, world.y, world.z);
-    }
+
     
-    @WrapOperation(
-        method = "attack",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/player/Player;getYRot()F",
-            ordinal = 0
-        )
-    )
-    private float wrapOperation_attack_getYaw_0(Player attacker, Operation<Float> original, Entity target) {
-        Direction targetGravityDirection = GravityChangerAPI.getGravityDirection(target);
-        Direction attackerGravityDirection = GravityChangerAPI.getGravityDirection(attacker);
-        if (targetGravityDirection == attackerGravityDirection) {
-            return original.call(attacker);
-        }
-        
-        return RotationUtil.rotWorldToPlayer(RotationUtil.rotPlayerToWorld(original.call(attacker), attacker.getXRot(), attackerGravityDirection), targetGravityDirection).x;
-    }
+
     
-    @WrapOperation(
-        method = "attack",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/player/Player;getYRot()F",
-            ordinal = 1
-        )
-    )
-    private float wrapOperation_attack_getYaw_1(Player attacker, Operation<Float> original, Entity target) {
-        Direction targetGravityDirection = GravityChangerAPI.getGravityDirection(target);
-        Direction attackerGravityDirection = GravityChangerAPI.getGravityDirection(attacker);
-        if (targetGravityDirection == attackerGravityDirection) {
-            return original.call(attacker);
-        }
-        
-        return RotationUtil.rotWorldToPlayer(RotationUtil.rotPlayerToWorld(original.call(attacker), attacker.getXRot(), attackerGravityDirection), targetGravityDirection).x;
-    }
+
     
-    @WrapOperation(
-        method = "attack",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/player/Player;getYRot()F",
-            ordinal = 2
-        )
-    )
-    private float wrapOperation_attack_getYaw_2(Player attacker, Operation<Float> original) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(attacker);
-        if (gravityDirection == Direction.DOWN) {
-            return original.call(attacker);
-        }
-        
-        return RotationUtil.rotPlayerToWorld(original.call(attacker), attacker.getXRot(), gravityDirection).x;
-    }
+
     
-    @WrapOperation(
-        method = "attack",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/player/Player;getYRot()F",
-            ordinal = 3
-        )
-    )
-    private float wrapOperation_attack_getYaw_3(Player attacker, Operation<Float> original) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection(attacker);
-        if (gravityDirection == Direction.DOWN) {
-            return original.call(attacker);
-        }
-        
-        return RotationUtil.rotPlayerToWorld(original.call(attacker), attacker.getXRot(), gravityDirection).x;
-    }
+
     
-    @ModifyArgs(
-        method = "addParticlesAroundSelf",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/level/Level;addParticle(Lnet/minecraft/core/particles/ParticleOptions;DDDDDD)V"
-        )
-    )
-    private void modify_addDeathParticless_addParticle_0(Args args) {
-        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
-        if (gravityDirection == Direction.DOWN) return;
-        
-        Vec3 vec3d = this.position().subtract(RotationUtil.vecPlayerToWorld(this.position().subtract(args.get(1), args.get(2), args.get(3)), gravityDirection));
-        args.set(1, vec3d.x);
-        args.set(2, vec3d.y);
-        args.set(3, vec3d.z);
-    }
+
     
     @ModifyArgs(
         method = "aiStep",
@@ -353,5 +215,24 @@ public abstract class PlayerMixin extends LivingEntity {
         
         AABB result = RotationUtil.makeBoxFromDimensions(dimensions, gravityDirection, pos);
         return result;
+    }
+
+    // In 26.x isAboveGround() uses canFallAtLeast(), which builds the checked box in world space.
+    // Build it in the entity's local frame instead.
+    @Inject(
+        method = "canFallAtLeast",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void inject_canFallAtLeast(double deltaX, double deltaZ, double distance, CallbackInfoReturnable<Boolean> cir) {
+        Direction gravityDirection = GravityChangerAPI.getGravityDirection((Entity) (Object) this);
+        if (gravityDirection == Direction.DOWN) return;
+
+        AABB local = RotationUtil.boxWorldToPlayer(this.getBoundingBox(), gravityDirection);
+        AABB checkBox = new AABB(
+            local.minX + 1.0E-7 + deltaX, local.minY - distance - 1.0E-7, local.minZ + 1.0E-7 + deltaZ,
+            local.maxX - 1.0E-7 + deltaX, local.minY, local.maxZ - 1.0E-7 + deltaZ
+        );
+        cir.setReturnValue(this.level().noCollision(this, RotationUtil.boxPlayerToWorld(checkBox, gravityDirection)));
     }
 }

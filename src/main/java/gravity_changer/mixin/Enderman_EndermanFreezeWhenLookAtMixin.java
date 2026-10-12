@@ -9,11 +9,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(
-    targets = "net.minecraft.world.entity.monster.EnderMan$EndermanFreezeWhenLookedAt"
+    targets = "net.minecraft.world.entity.monster.Enderman$EndermanFreezeWhenLookedAt"
 )
 public abstract class Enderman_EndermanFreezeWhenLookAtMixin {
     @Redirect(
-        method = "Lnet/minecraft/world/entity/monster/EnderMan$EndermanFreezeWhenLookedAt;tick()V",
+        method = "Lnet/minecraft/world/entity/monster/Enderman$EndermanFreezeWhenLookedAt;tick()V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;getEyeY()D",
@@ -30,7 +30,7 @@ public abstract class Enderman_EndermanFreezeWhenLookAtMixin {
     }
     
     @Redirect(
-        method = "Lnet/minecraft/entity/mob/EndermanEntity$ChasePlayerGoal;tick()V",
+        method = "Lnet/minecraft/world/entity/monster/Enderman$EndermanFreezeWhenLookedAt;tick()V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;getX()D",
@@ -47,7 +47,7 @@ public abstract class Enderman_EndermanFreezeWhenLookAtMixin {
     }
     
     @Redirect(
-        method = "Lnet/minecraft/entity/mob/EndermanEntity$ChasePlayerGoal;tick()V",
+        method = "Lnet/minecraft/world/entity/monster/Enderman$EndermanFreezeWhenLookedAt;tick()V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;getZ()D",
